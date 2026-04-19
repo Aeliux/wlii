@@ -65,7 +65,7 @@ jobs:
             file_name="$(basename "${url%%\?*}")"
             file_name="$(printf '%s' "$file_name" | sed -E 's/[^A-Za-z0-9._-]+/_/g')"
             file_name="$(printf '%s' "$file_name" | sed -E 's/^[.]+//')"
-            if [[ "$file_name" == *".."* ]]; then
+            if [[ "$file_name" == *".."* || "$file_name" == */* || "$file_name" == *\\* ]]; then
               file_name=""
             fi
             if [ -z "$file_name" ] || [ "$file_name" = "/" ] || [ "$file_name" = "." ] || [ "$file_name" = ".." ]; then
@@ -82,6 +82,13 @@ jobs:
               echo "Failed to download '$url' (curl exit code: $code)"
               exit "$code"
             }
+
+            actual_size="$(wc -c < "$target_path")"
+            if [ "$actual_size" -gt "$MAX_FILE_SIZE_BYTES" ]; then
+              echo "Downloaded file exceeds size limit ($actual_size bytes): $url"
+              rm -f "$target_path"
+              exit 1
+            fi
             echo "$url" >> "$TRACK_FILE"
             NEW_FILES+=("$target_path")
           done < "$URLS_FILE"
@@ -107,7 +114,15 @@ jobs:
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add downloaded_urls.txt
           git commit -m "chore: update downloaded URLs"
-          git push
+          for attempt in 1 2 3; do
+            if git pull --rebase && git push; then
+              exit 0
+            fi
+            echo "Push attempt $attempt failed, retrying..."
+            sleep 2
+          done
+          echo "Failed to push updated download tracker after retries."
+          exit 1
 
       - name: Create or update release
         if: steps.download.outputs.downloaded == 'true'
