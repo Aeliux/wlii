@@ -1,2 +1,4 @@
 # Add one HTTPS URL per line, for example:
 # https://example.com/file.zip
+
+https://www.python.org/ftp/python/3.11.14/Python-3.11.14.tar.xz
