@@ -77,18 +77,11 @@ jobs:
               target_path="$DOWNLOAD_DIR/$(printf '%s' "$url" | sha256sum | awk '{print substr($1,1,16)}')-$file_name"
             fi
 
-            curl --proto '=https' --proto-redir '=https' --tlsv1.2 --max-redirs 5 -fL --show-error --retry 3 --retry-all-errors --max-filesize "$MAX_FILE_SIZE_BYTES" -o "$target_path" "$url" || {
+            curl --proto '=https' --proto-redir '=https' --tlsv1.2 --max-redirs 5 --connect-timeout 20 --max-time 300 -fL --show-error --retry 3 --retry-all-errors --max-filesize "$MAX_FILE_SIZE_BYTES" -o "$target_path" "$url" || {
               code=$?
               echo "Failed to download '$url' (curl exit code: $code)"
               exit "$code"
             }
-
-            actual_size="$(wc -c < "$target_path")"
-            if [ "$actual_size" -gt "$MAX_FILE_SIZE_BYTES" ]; then
-              echo "Downloaded file exceeds size limit ($actual_size bytes): $url"
-              rm -f "$target_path"
-              exit 1
-            fi
             echo "$url" >> "$TRACK_FILE"
             NEW_FILES+=("$target_path")
           done < "$URLS_FILE"
@@ -116,8 +109,10 @@ jobs:
           git commit -m "chore: update downloaded URLs"
           for attempt in 1 2 3; do
             if ! git pull --rebase; then
-              echo "Rebase failed while syncing tracker updates."
-              exit 1
+              git rebase --abort || true
+              echo "Rebase failed while syncing tracker updates (attempt $attempt)."
+              sleep 2
+              continue
             fi
             if git push; then
               exit 0
