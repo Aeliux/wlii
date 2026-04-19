@@ -25,6 +25,7 @@ jobs:
           URLS_FILE="urls.txt"
           TRACK_FILE="downloaded_urls.txt"
           DOWNLOAD_DIR="downloads"
+          MAX_FILE_SIZE_BYTES="104857600"
 
           touch "$URLS_FILE" "$TRACK_FILE"
           mkdir -p "$DOWNLOAD_DIR"
@@ -63,7 +64,7 @@ jobs:
               target_path="$DOWNLOAD_DIR/$(printf '%s' "$url" | sha256sum | awk '{print substr($1,1,16)}')-$file_name"
             fi
 
-            curl -fsSL --retry 3 --retry-all-errors -o "$target_path" "$url"
+            curl -fL --show-error --retry 3 --retry-all-errors --max-filesize "$MAX_FILE_SIZE_BYTES" -o "$target_path" "$url"
             echo "$url" >> "$TRACK_FILE"
             NEW_FILES+=("$target_path")
           done < "$URLS_FILE"
@@ -85,9 +86,6 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          if git diff --quiet -- downloaded_urls.txt; then
-            exit 0
-          fi
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add downloaded_urls.txt
