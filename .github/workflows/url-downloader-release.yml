@@ -9,6 +9,10 @@ on:
 permissions:
   contents: write
 
+concurrency:
+  group: url-downloader-release
+  cancel-in-progress: false
+
 jobs:
   download-and-release:
     runs-on: ubuntu-latest
@@ -58,6 +62,9 @@ jobs:
             file_name="$(basename "${url%%\?*}")"
             file_name="$(printf '%s' "$file_name" | sed -E 's/[^A-Za-z0-9._-]+/_/g')"
             file_name="$(printf '%s' "$file_name" | sed -E 's/^[.]+//')"
+            if [[ "$file_name" == *".."* ]]; then
+              file_name=""
+            fi
             if [ -z "$file_name" ] || [ "$file_name" = "/" ] || [ "$file_name" = "." ] || [ "$file_name" = ".." ]; then
               file_name="download-$(printf '%s' "$url" | sha256sum | awk '{print substr($1,1,16)}')"
             fi
@@ -67,7 +74,11 @@ jobs:
               target_path="$DOWNLOAD_DIR/$(printf '%s' "$url" | sha256sum | awk '{print substr($1,1,16)}')-$file_name"
             fi
 
-            curl --proto '=https' --tlsv1.2 -fL --show-error --retry 3 --retry-all-errors --max-filesize "$MAX_FILE_SIZE_BYTES" -o "$target_path" "$url"
+            curl --proto '=https' --tlsv1.2 -fL --show-error --retry 3 --retry-all-errors --max-filesize "$MAX_FILE_SIZE_BYTES" -o "$target_path" "$url" || {
+              code=$?
+              echo "Failed to download '$url' (curl exit code: $code)"
+              exit "$code"
+            }
             echo "$url" >> "$TRACK_FILE"
             NEW_FILES+=("$target_path")
           done < "$URLS_FILE"
