@@ -1,0 +1,180 @@
+name: URL Downloader Release
+
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - "urls.txt"
+
+permissions:
+  contents: write
+
+concurrency:
+  group: url-downloader-release
+  cancel-in-progress: false
+
+jobs:
+  download-and-release:
+    runs-on: ubuntu-latest
+    env:
+      # 100MB per downloaded file; adjust if larger files are expected.
+      MAX_FILE_SIZE_BYTES: "104857600"
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Detect download mode
+        id: mode
+        shell: bash
+        run: |
+          set -euo pipefail
+          message="${{ github.event.head_commit.message || '' }}"
+          if [[ "$message" == *"=git="* ]]; then
+            echo "git_mode=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "git_mode=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Download new URLs
+        id: download
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          URLS_FILE="urls.txt"
+          TRACK_FILE="downloaded_urls.txt"
+          DOWNLOAD_DIR="downloads"
+
+          touch "$URLS_FILE" "$TRACK_FILE"
+          mkdir -p "$DOWNLOAD_DIR"
+
+          NEW_FILES=()
+          while IFS= read -r raw || [ -n "$raw" ]; do
+            url="$(echo "$raw" | xargs)"
+
+            if [ -z "$url" ] || [[ "$url" == \#* ]]; then
+              continue
+            fi
+
+            if ! [[ "$url" =~ ^https:// ]]; then
+              echo "Skipping non-HTTPS URL: $url"
+              continue
+            fi
+
+            # Extract the host from a standard HTTPS URL.
+            host="$(printf '%s' "$url" | sed -E 's#^https://([^/@]+@)?([^/:?#]+).*$#\2#')"
+            if [[ "$host" =~ ^(localhost|127\.[0-9]+\.[0-9]+\.[0-9]+|10\.[0-9]+\.[0-9]+\.[0-9]+|192\.168\.[0-9]+\.[0-9]+|172\.(1[6-9]|2[0-9]|3[0-1])\.[0-9]+\.[0-9]+|169\.254\.[0-9]+\.[0-9]+|\[::1\]|::1|\[(fc|fd|fe80):.*\]|(fc|fd|fe80):.*)$ ]]; then
+              echo "Skipping local URL host: $url"
+              continue
+            fi
+
+            if grep -Fxq "$url" "$TRACK_FILE"; then
+              continue
+            fi
+
+            # Sanitize to safe filesystem characters, remove hidden-file prefix,
+            # then fall back to a hash if still unsafe/empty.
+            file_name="$(basename "${url%%\?*}")"
+            file_name="$(printf '%s' "$file_name" | sed -E 's/[^A-Za-z0-9._-]+/_/g')"
+            file_name="$(printf '%s' "$file_name" | sed -E 's/^[.]+//')"
+            if [[ "$file_name" == *".."* || "$file_name" == */* || "$file_name" == *\\* ]]; then
+              file_name=""
+            fi
+            if [ -z "$file_name" ] || [ "$file_name" = "/" ] || [ "$file_name" = "." ] || [ "$file_name" = ".." ]; then
+              file_name="download-$(printf '%s' "$url" | sha256sum | awk '{print substr($1,1,16)}')"
+            fi
+
+            target_path="$DOWNLOAD_DIR/$file_name"
+            if [ -e "$target_path" ]; then
+              target_path="$DOWNLOAD_DIR/$(printf '%s' "$url" | sha256sum | awk '{print substr($1,1,16)}')-$file_name"
+            fi
+
+            curl --proto '=https' --proto-redir '=https' --tlsv1.2 --max-redirs 5 --connect-timeout 20 --max-time 300 -fL --show-error --retry 3 --retry-all-errors --max-filesize "$MAX_FILE_SIZE_BYTES" -o "$target_path" "$url" || {
+              code=$?
+              echo "Failed to download '$url' (curl exit code: $code)"
+              exit "$code"
+            }
+            echo "$url" >> "$TRACK_FILE"
+            NEW_FILES+=("$target_path")
+          done < "$URLS_FILE"
+
+          if [ "${#NEW_FILES[@]}" -eq 0 ]; then
+            echo "downloaded=false" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+
+          echo "downloaded=true" >> "$GITHUB_OUTPUT"
+          {
+            echo "files<<EOF"
+            printf '%s\n' "${NEW_FILES[@]}"
+            echo "EOF"
+          } >> "$GITHUB_OUTPUT"
+
+      - name: Commit updated download tracker
+        if: steps.download.outputs.downloaded == 'true' && steps.mode.outputs.git_mode != 'true'
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add downloaded_urls.txt
+          git commit -m "chore: update downloaded URLs"
+          for attempt in 1 2 3; do
+            if ! git pull --rebase; then
+              git rebase --abort || true
+              echo "Rebase failed while syncing tracker updates (attempt $attempt)."
+              sleep 2
+              continue
+            fi
+            if git push; then
+              exit 0
+            fi
+            echo "Push attempt $attempt failed, retrying..."
+            sleep 2
+          done
+          echo "Failed to push updated download tracker after retries."
+          exit 1
+
+      - name: Commit downloaded files to repository
+        if: steps.download.outputs.downloaded == 'true' && steps.mode.outputs.git_mode == 'true'
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add downloaded_urls.txt downloads/
+          git commit -m "chore: add downloaded files from urls.txt"
+          for attempt in 1 2 3; do
+            if ! git pull --rebase; then
+              git rebase --abort || true
+              echo "Rebase failed while syncing downloaded files (attempt $attempt)."
+              sleep 2
+              continue
+            fi
+            if git push; then
+              exit 0
+            fi
+            echo "Push attempt $attempt failed, retrying..."
+            sleep 2
+          done
+          echo "Failed to push downloaded files after retries."
+          exit 1
+
+      - name: Create or update release
+        if: steps.download.outputs.downloaded == 'true' && steps.mode.outputs.git_mode != 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
+          FILES: ${{ steps.download.outputs.files }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          TAG="downloaded-files"
+
+          if ! gh release view "$TAG" >/dev/null 2>&1; then
+            gh release create "$TAG" --title "Downloaded Files" --notes "Automatically downloaded files from urls.txt"
+          fi
+
+          while IFS= read -r file || [ -n "$file" ]; do
+            [ -n "$file" ] || continue
+            gh release upload "$TAG" "$file" --clobber
+          done <<< "$FILES"
