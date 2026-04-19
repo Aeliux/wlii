@@ -1,0 +1,102 @@
+name: URL Downloader Release
+
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - "urls.txt"
+
+permissions:
+  contents: write
+
+jobs:
+  download-and-release:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Download new URLs
+        id: download
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          URLS_FILE="urls.txt"
+          TRACK_FILE="downloaded_urls.txt"
+          DOWNLOAD_DIR="downloads"
+
+          touch "$URLS_FILE" "$TRACK_FILE"
+          mkdir -p "$DOWNLOAD_DIR"
+
+          NEW_FILES=()
+          while IFS= read -r raw || [ -n "$raw" ]; do
+            url="$(echo "$raw" | xargs)"
+
+            if [ -z "$url" ] || [[ "$url" == \#* ]]; then
+              continue
+            fi
+
+            if grep -Fxq "$url" "$TRACK_FILE"; then
+              continue
+            fi
+
+            file_name="$(basename "${url%%\?*}")"
+            if [ -z "$file_name" ] || [ "$file_name" = "/" ] || [ "$file_name" = "." ]; then
+              file_name="download-$(printf '%s' "$url" | sha256sum | awk '{print substr($1,1,16)}')"
+            fi
+
+            target_path="$DOWNLOAD_DIR/$file_name"
+            if [ -e "$target_path" ]; then
+              target_path="$DOWNLOAD_DIR/$(printf '%s' "$url" | sha256sum | awk '{print substr($1,1,16)}')-$file_name"
+            fi
+
+            curl -fsSL --retry 3 --retry-all-errors -o "$target_path" "$url"
+            echo "$url" >> "$TRACK_FILE"
+            NEW_FILES+=("$target_path")
+          done < "$URLS_FILE"
+
+          if [ "${#NEW_FILES[@]}" -eq 0 ]; then
+            echo "downloaded=false" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+
+          echo "downloaded=true" >> "$GITHUB_OUTPUT"
+          {
+            echo "files<<EOF"
+            printf '%s\n' "${NEW_FILES[@]}"
+            echo "EOF"
+          } >> "$GITHUB_OUTPUT"
+
+      - name: Commit updated download tracker
+        if: steps.download.outputs.downloaded == 'true'
+        shell: bash
+        run: |
+          set -euo pipefail
+          if git diff --quiet -- downloaded_urls.txt; then
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add downloaded_urls.txt
+          git commit -m "chore: update downloaded URLs"
+          git push
+
+      - name: Create or update release
+        if: steps.download.outputs.downloaded == 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
+          FILES: ${{ steps.download.outputs.files }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          TAG="downloaded-files"
+
+          if ! gh release view "$TAG" >/dev/null 2>&1; then
+            gh release create "$TAG" --title "Downloaded Files" --notes "Automatically downloaded files from urls.txt"
+          fi
+
+          while IFS= read -r file || [ -n "$file" ]; do
+            [ -n "$file" ] || continue
+            gh release upload "$TAG" "$file" --clobber
+          done <<< "$FILES"
