@@ -1,1 +1,2 @@
 # This file is auto-managed by .github/workflows/url-downloader-release.yml
+https://www.python.org/ftp/python/3.11.14/Python-3.11.14.tar.xz
