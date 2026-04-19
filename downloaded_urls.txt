@@ -1,3 +1,4 @@
 # This file is auto-managed by .github/workflows/url-downloader-release.yml
 https://www.python.org/ftp/python/3.11.14/Python-3.11.14.tar.xz
 https://github.com/tinode/chat/releases/download/v0.25.2/tinode-mysql.linux-amd64.tar.gz
+https://github.com/jellyfin/jellyfin-android/releases/download/v2.6.4/jellyfin-android-v2.6.4-proprietary-release.apk
