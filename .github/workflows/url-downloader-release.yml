@@ -120,6 +120,7 @@ jobs:
           git add downloaded_urls.txt
           git commit -m "chore: update downloaded URLs"
           for attempt in 1 2 3; do
+            git fetch origin
             if ! git pull --rebase; then
               git rebase --abort || true
               echo "Rebase failed while syncing tracker updates (attempt $attempt)."
@@ -145,6 +146,7 @@ jobs:
           git add downloaded_urls.txt downloads/
           git commit -m "chore: add downloaded files from urls.txt"
           for attempt in 1 2 3; do
+            git fetch origin
             if ! git pull --rebase; then
               git rebase --abort || true
               echo "Rebase failed while syncing downloaded files (attempt $attempt)."
