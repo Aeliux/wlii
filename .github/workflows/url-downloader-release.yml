@@ -23,6 +23,18 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
+      - name: Detect download mode
+        id: mode
+        shell: bash
+        run: |
+          set -euo pipefail
+          message="${{ github.event.head_commit.message || '' }}"
+          if [[ "$message" == *"=git="* ]]; then
+            echo "git_mode=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "git_mode=false" >> "$GITHUB_OUTPUT"
+          fi
+
       - name: Download new URLs
         id: download
         shell: bash
@@ -99,7 +111,7 @@ jobs:
           } >> "$GITHUB_OUTPUT"
 
       - name: Commit updated download tracker
-        if: steps.download.outputs.downloaded == 'true'
+        if: steps.download.outputs.downloaded == 'true' && steps.mode.outputs.git_mode != 'true'
         shell: bash
         run: |
           set -euo pipefail
@@ -123,8 +135,33 @@ jobs:
           echo "Failed to push updated download tracker after retries."
           exit 1
 
+      - name: Commit downloaded files to repository
+        if: steps.download.outputs.downloaded == 'true' && steps.mode.outputs.git_mode == 'true'
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add downloaded_urls.txt downloads/
+          git commit -m "chore: add downloaded files from urls.txt"
+          for attempt in 1 2 3; do
+            if ! git pull --rebase; then
+              git rebase --abort || true
+              echo "Rebase failed while syncing downloaded files (attempt $attempt)."
+              sleep 2
+              continue
+            fi
+            if git push; then
+              exit 0
+            fi
+            echo "Push attempt $attempt failed, retrying..."
+            sleep 2
+          done
+          echo "Failed to push downloaded files after retries."
+          exit 1
+
       - name: Create or update release
-        if: steps.download.outputs.downloaded == 'true'
+        if: steps.download.outputs.downloaded == 'true' && steps.mode.outputs.git_mode != 'true'
         env:
           GH_TOKEN: ${{ github.token }}
           FILES: ${{ steps.download.outputs.files }}
