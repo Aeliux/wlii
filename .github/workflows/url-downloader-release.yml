@@ -12,6 +12,8 @@ permissions:
 jobs:
   download-and-release:
     runs-on: ubuntu-latest
+    env:
+      MAX_FILE_SIZE_BYTES: "104857600"
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -25,7 +27,6 @@ jobs:
           URLS_FILE="urls.txt"
           TRACK_FILE="downloaded_urls.txt"
           DOWNLOAD_DIR="downloads"
-          MAX_FILE_SIZE_BYTES="104857600"
 
           touch "$URLS_FILE" "$TRACK_FILE"
           mkdir -p "$DOWNLOAD_DIR"
@@ -43,6 +44,7 @@ jobs:
               continue
             fi
 
+            # Extract the host from a standard HTTPS URL.
             host="$(printf '%s' "$url" | sed -E 's#^https://([^/@]+@)?([^/:?#]+).*$#\2#')"
             if [[ "$host" =~ ^(localhost|127\.[0-9]+\.[0-9]+\.[0-9]+|\[::1\]|::1)$ ]]; then
               echo "Skipping local URL host: $url"
@@ -55,6 +57,7 @@ jobs:
 
             file_name="$(basename "${url%%\?*}")"
             file_name="$(printf '%s' "$file_name" | sed -E 's/[^A-Za-z0-9._-]+/_/g')"
+            file_name="$(printf '%s' "$file_name" | sed -E 's/^[.]+//')"
             if [ -z "$file_name" ] || [ "$file_name" = "/" ] || [ "$file_name" = "." ] || [ "$file_name" = ".." ]; then
               file_name="download-$(printf '%s' "$url" | sha256sum | awk '{print substr($1,1,16)}')"
             fi
@@ -64,7 +67,7 @@ jobs:
               target_path="$DOWNLOAD_DIR/$(printf '%s' "$url" | sha256sum | awk '{print substr($1,1,16)}')-$file_name"
             fi
 
-            curl -fL --show-error --retry 3 --retry-all-errors --max-filesize "$MAX_FILE_SIZE_BYTES" -o "$target_path" "$url"
+            curl --proto '=https' --tlsv1.2 -fL --show-error --retry 3 --retry-all-errors --max-filesize "$MAX_FILE_SIZE_BYTES" -o "$target_path" "$url"
             echo "$url" >> "$TRACK_FILE"
             NEW_FILES+=("$target_path")
           done < "$URLS_FILE"
