@@ -37,12 +37,24 @@ jobs:
               continue
             fi
 
+            if ! [[ "$url" =~ ^https:// ]]; then
+              echo "Skipping non-HTTPS URL: $url"
+              continue
+            fi
+
+            host="$(printf '%s' "$url" | sed -E 's#^https://([^/@]+@)?([^/:?#]+).*$#\2#')"
+            if [[ "$host" =~ ^(localhost|127\.[0-9]+\.[0-9]+\.[0-9]+|\[::1\]|::1)$ ]]; then
+              echo "Skipping local URL host: $url"
+              continue
+            fi
+
             if grep -Fxq "$url" "$TRACK_FILE"; then
               continue
             fi
 
             file_name="$(basename "${url%%\?*}")"
-            if [ -z "$file_name" ] || [ "$file_name" = "/" ] || [ "$file_name" = "." ]; then
+            file_name="$(printf '%s' "$file_name" | sed -E 's/[^A-Za-z0-9._-]+/_/g')"
+            if [ -z "$file_name" ] || [ "$file_name" = "/" ] || [ "$file_name" = "." ] || [ "$file_name" = ".." ]; then
               file_name="download-$(printf '%s' "$url" | sha256sum | awk '{print substr($1,1,16)}')"
             fi
 
