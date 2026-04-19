@@ -17,6 +17,7 @@ jobs:
   download-and-release:
     runs-on: ubuntu-latest
     env:
+      # 100MB per downloaded file; adjust if larger files are expected.
       MAX_FILE_SIZE_BYTES: "104857600"
     steps:
       - name: Checkout repository
@@ -50,7 +51,7 @@ jobs:
 
             # Extract the host from a standard HTTPS URL.
             host="$(printf '%s' "$url" | sed -E 's#^https://([^/@]+@)?([^/:?#]+).*$#\2#')"
-            if [[ "$host" =~ ^(localhost|127\.[0-9]+\.[0-9]+\.[0-9]+|\[::1\]|::1)$ ]]; then
+            if [[ "$host" =~ ^(localhost|127\.[0-9]+\.[0-9]+\.[0-9]+|10\.[0-9]+\.[0-9]+\.[0-9]+|192\.168\.[0-9]+\.[0-9]+|172\.(1[6-9]|2[0-9]|3[0-1])\.[0-9]+\.[0-9]+|169\.254\.[0-9]+\.[0-9]+|\[::1\]|::1)$ ]]; then
               echo "Skipping local URL host: $url"
               continue
             fi
@@ -59,6 +60,8 @@ jobs:
               continue
             fi
 
+            # Sanitize to safe filesystem characters, remove hidden-file prefix,
+            # then fall back to a hash if still unsafe/empty.
             file_name="$(basename "${url%%\?*}")"
             file_name="$(printf '%s' "$file_name" | sed -E 's/[^A-Za-z0-9._-]+/_/g')"
             file_name="$(printf '%s' "$file_name" | sed -E 's/^[.]+//')"
@@ -74,7 +77,7 @@ jobs:
               target_path="$DOWNLOAD_DIR/$(printf '%s' "$url" | sha256sum | awk '{print substr($1,1,16)}')-$file_name"
             fi
 
-            curl --proto '=https' --tlsv1.2 -fL --show-error --retry 3 --retry-all-errors --max-filesize "$MAX_FILE_SIZE_BYTES" -o "$target_path" "$url" || {
+            curl --proto '=https' --proto-redir '=https' --tlsv1.2 -fL --show-error --retry 3 --retry-all-errors --max-filesize "$MAX_FILE_SIZE_BYTES" -o "$target_path" "$url" || {
               code=$?
               echo "Failed to download '$url' (curl exit code: $code)"
               exit "$code"
