@@ -1,2 +1,3 @@
 # This file is auto-managed by .github/workflows/url-downloader-release.yml
 https://www.python.org/ftp/python/3.11.14/Python-3.11.14.tar.xz
+https://github.com/tinode/chat/releases/download/v0.25.2/tinode-mysql.linux-amd64.tar.gz
