@@ -43,3 +43,54 @@ asset:	prometheus.yml
 
 
 **Full Changelog**: https://github.com/immich-app/immich/compare/v2.7.4...v2.7.5
+===================
+Mon Apr 20 16:04:09 UTC 2026
+===================
+title:	v2.6.4
+tag:	v2.6.4
+draft:	false
+prerelease:	false
+immutable:	false
+author:	github-actions[bot]
+created:	2026-03-28T16:49:52Z
+published:	2026-03-28T16:50:04Z
+url:	https://github.com/cogwheel0/conduit/releases/tag/v2.6.4
+asset:	app-arm64-v8a-release.apk
+asset:	app-armeabi-v7a-release.apk
+asset:	app-release.aab
+asset:	app-x86_64-release.apk
+asset:	conduit.ipa
+--
+This release focuses on faster chat workflows, better sidebar organization, and a more reliable streaming experience.
+
+### Highlights
+
+- Added nested folders in the chat sidebar.
+- Added drag-and-drop support for moving chats between folders, nesting folders, and returning items to the top level.
+- Added smarter `#` context suggestions in the composer for notes, knowledge bases, and knowledge files.
+- Added note attachments to chat context, including note cards rendered directly in sent messages.
+- Added a new draft note button in the composer so you can turn your current text into a note and jump straight into it.
+- Added a setting to disable haptics while assistant responses are streaming.
+
+### Improvements
+
+- Improved streaming reliability for Open WebUI task and socket flows.
+- Improved handling for session-aware events, superseded streams, and conversations updated from another client.
+- Improved reasoning, tool-call, and status block rendering while a response is still streaming.
+- Improved citation and source rendering with cleaner labels, better URL selection, and more consistent inline badges.
+- Improved sidebar layout so the floating user pill works more cleanly across chats, notes, and channels.
+- Improved notes and channels tabs so scrolling content respects the sidebar overlay layout.
+
+### Fixes
+
+- Fixed markdown rendering where content after a closing `</details>` block could be dropped.
+- Fixed trailing reasoning and code-interpreter formatting so streamed detail blocks render more cleanly.
+- Fixed cases where late or obsolete stream events could update the wrong assistant message.
+- Fixed source parsing for duplicate or mixed metadata entries so citations resolve more accurately.
+
+### Under the hood
+
+- Updated Open WebUI integration behavior to better match web client payloads and background task settings.
+- Added broader test coverage for transport parity, remote sync, markdown/details rendering, citations, and streaming haptics.
+
+**Full Changelog**: https://github.com/cogwheel0/conduit/compare/v2.6.3...v2.6.4
