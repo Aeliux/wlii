@@ -24,7 +24,7 @@ jobs:
           echo "===================" >> exec_log.txt
           date >> exec_log.txt
           echo "===================" >> exec_log.txt
-          bash script.sh >> exec_log.txt 2>>&1
+          bash script.sh >> exec_log.txt 2>> exec_log.txt
 
       - name: Commit log
         shell: bash
