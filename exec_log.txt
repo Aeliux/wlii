@@ -4,3 +4,9 @@ Mon Apr 20 15:08:43 UTC 2026
 ===================
 Mon Apr 20 15:10:20 UTC 2026
 ===================
+===================
+Mon Apr 20 15:13:20 UTC 2026
+===================
+gh: To use GitHub CLI in a GitHub Actions workflow, set the GH_TOKEN environment variable. Example:
+  env:
+    GH_TOKEN: ${{ github.token }}
