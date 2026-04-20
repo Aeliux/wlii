@@ -1,0 +1,51 @@
+name: Executor
+
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - "script.sh"
+
+permissions:
+  contents: write
+
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v5
+
+      - name: Run script
+        id: run
+        shell: bash
+        continue-on-error: true
+        run: |
+          echo "===================" >> exec_log.txt
+          date >> exec_log.txt
+          echo "===================" >> exec_log.txt
+          bash script.sh >> exec_log.txt
+
+      - name: Commit log
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add exec_log.txt
+          git commit -m "chore: update exec log"
+          for attempt in 1 2 3; do
+            if ! git pull --rebase; then
+              git rebase --abort || true
+              echo "Rebase failed while syncing tracker updates (attempt $attempt)."
+              sleep 2
+              continue
+            fi
+            if git push; then
+              exit 0
+            fi
+            echo "Push attempt $attempt failed, retrying..."
+            sleep 2
+          done
+          echo "Failed to push updated log after retries."
+          exit 1
