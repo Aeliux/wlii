@@ -10,3 +10,36 @@ Mon Apr 20 15:13:20 UTC 2026
 gh: To use GitHub CLI in a GitHub Actions workflow, set the GH_TOKEN environment variable. Example:
   env:
     GH_TOKEN: ${{ github.token }}
+===================
+Mon Apr 20 15:14:54 UTC 2026
+===================
+title:	v2.7.5
+tag:	v2.7.5
+draft:	false
+prerelease:	false
+immutable:	false
+author:	immich-push-o-matic[bot]
+created:	2026-04-13T14:27:31Z
+published:	2026-04-13T14:53:55Z
+url:	https://github.com/immich-app/immich/releases/tag/v2.7.5
+asset:	app-arm64-v8a-release.apk
+asset:	app-armeabi-v7a-release.apk
+asset:	app-release.apk
+asset:	app-x86_64-release.apk
+asset:	docker-compose.rootless.yml
+asset:	docker-compose.yml
+asset:	example.env
+asset:	hwaccel.ml.yml
+asset:	hwaccel.transcoding.yml
+asset:	prometheus.yml
+--
+# v2.7.5
+
+## What's Changed
+### 🐛 Bug fixes
+* fix(server): add rate limit and deduplication to version check by @zackpollard in https://github.com/immich-app/immich/pull/27747
+### 🌐 Translations
+* chore(web): update translations by @weblate in https://github.com/immich-app/immich/pull/27589
+
+
+**Full Changelog**: https://github.com/immich-app/immich/compare/v2.7.4...v2.7.5
