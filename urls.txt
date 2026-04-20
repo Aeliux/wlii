@@ -6,3 +6,4 @@ https://github.com/tinode/chat/releases/download/v0.25.2/tinode-mysql.linux-amd6
 https://github.com/jellyfin/jellyfin-android/releases/download/v2.6.4/jellyfin-android-v2.6.4-proprietary-release.apk
 https://github.com/immich-app/immich/releases/latest/download/docker-compose.yml
 https://github.com/immich-app/immich/releases/latest/download/example.env
+https://github.com/immich-app/immich/releases/latest/download/app-arm64-v8a-release.apk
