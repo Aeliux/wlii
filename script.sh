@@ -1,4 +1,3 @@
 #!/usr/bin/env bash
 
-gh release view -R immich-app/immich
-###
+gh release view -R cogwheel0/conduit
