@@ -94,3 +94,26 @@ This release focuses on faster chat workflows, better sidebar organization, and 
 - Added broader test coverage for transport parity, remote sync, markdown/details rendering, citations, and streaming haptics.
 
 **Full Changelog**: https://github.com/cogwheel0/conduit/compare/v2.6.3...v2.6.4
+===================
+Tue Apr 21 16:14:10 UTC 2026
+===================
+title:	33.0.1
+tag:	stable-33.0.1
+draft:	false
+prerelease:	false
+immutable:	false
+author:	alperozturk96
+created:	2026-03-18T10:28:13Z
+published:	2026-03-18T10:29:11Z
+url:	https://github.com/nextcloud/android/releases/tag/stable-33.0.1
+asset:	gplay-release-330000190.apk
+asset:	nextcloud-330000190.apk
+--
+## 33.0.1 (March 18, 2026)
+
+- Auto upload improvements
+- Bug fixes and performance improvements
+
+Minimum: NC 20 Server, Android 9 Nougat
+
+For a full list, please see https://github.com/nextcloud/android/milestone/124
