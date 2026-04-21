@@ -1,3 +1,3 @@
 #!/usr/bin/env bash
 
-gh release view -R cogwheel0/conduit
+gh release view -R nextcloud/android
