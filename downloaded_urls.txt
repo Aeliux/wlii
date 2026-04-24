@@ -8,3 +8,4 @@ https://github.com/immich-app/immich/releases/latest/download/app-arm64-v8a-rele
 https://github.com/cogwheel0/conduit/releases/latest/download/app-arm64-v8a-release.apk
 https://github.com/nextcloud/android/releases/latest/download/nextcloud-330000190.apk
 https://github.com/zorn-v/nextcloud-social-login/releases/download/v6.4.2/release.tar.gz
+https://github.com/binwiederhier/ntfy/releases/download/v2.22.0/ntfy_2.22.0_linux_amd64.tar.gz
