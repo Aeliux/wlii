@@ -14,3 +14,7 @@ https://github.com/9p4/jellyfin-plugin-sso/releases/download/v4.0.0.4/sso-authen
 https://github.com/ONLYOFFICE/onlyoffice-nextcloud/releases/download/v10.0.0/onlyoffice.tar.gz
 https://github.com/ONLYOFFICE/onlyoffice-nextcloud/releases/download/v9.13.0/onlyoffice.tar.gz
 https://github.com/nextcloud/theming_customcss/releases/download/v1.19.0/theming_customcss.tar.gz
+https://github.com/keycloak/keycloak/releases/download/26.6.1/keycloak-documentation-26.6.1.zip
+https://github.com/keycloak/keycloak/releases/download/26.6.1/keycloak-api-docs-26.6.1.zip
+https://github.com/keycloak/keycloak/releases/download/26.6.1/keycloak-admin-client-26.6.1.tgz
+https://github.com/keycloak/keycloak/releases/download/26.6.1/keycloak-account-ui-26.6.1.tgz
