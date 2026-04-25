@@ -13,3 +13,4 @@ https://github.com/binwiederhier/ntfy-android/releases/download/v1.24.0/ntfy-1.2
 https://github.com/9p4/jellyfin-plugin-sso/releases/download/v4.0.0.4/sso-authentication_4.0.0.4.zip
 https://github.com/ONLYOFFICE/onlyoffice-nextcloud/releases/download/v10.0.0/onlyoffice.tar.gz
 https://github.com/ONLYOFFICE/onlyoffice-nextcloud/releases/download/v9.13.0/onlyoffice.tar.gz
+https://github.com/nextcloud/theming_customcss/releases/download/v1.19.0/theming_customcss.tar.gz
