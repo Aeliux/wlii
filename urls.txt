@@ -35,3 +35,5 @@ https://github.com/nextcloud-releases/groupfolders/releases/download/v21.0.7/gro
 https://github.com/nextcloud-releases/theming_customcss/releases/download/v1.20.0/theming_customcss.tar.gz
 https://github.com/nextcloud-releases/whiteboard/releases/download/v1.5.7/whiteboard-v1.5.7.tar.gz
 https://github.com/nextcloud-releases/impersonate/releases/download/v4.0.0/impersonate-v4.0.0.tar.gz
+https://github.com/nextcloud/tasks/releases/download/v0.17.1/tasks.tar.gz
+
