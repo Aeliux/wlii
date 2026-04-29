@@ -29,3 +29,9 @@ https://github.com/nextcloud-releases/contacts/releases/download/v8.4.5/contacts
 https://github.com/nextcloud-releases/calendar/releases/download/v6.2.3/calendar-v6.2.3.tar.gz
 https://github.com/nextcloud-releases/tables/releases/download/v1.0.6/tables-v1.0.6.tar.gz
 https://github.com/nextcloud-releases/notes/releases/download/v5.0.0/notes-v5.0.0.tar.gz
+https://github.com/nextcloud-releases/deck/releases/download/v1.17.1/deck-v1.17.1.tar.gz
+https://github.com/nextcloud-releases/forms/releases/download/v5.2.7/forms-v5.2.7.tar.gz
+https://github.com/nextcloud-releases/groupfolders/releases/download/v21.0.7/groupfolders-v21.0.7.tar.gz
+https://github.com/nextcloud-releases/theming_customcss/releases/download/v1.20.0/theming_customcss.tar.gz
+https://github.com/nextcloud-releases/whiteboard/releases/download/v1.5.7/whiteboard-v1.5.7.tar.gz
+https://github.com/nextcloud-releases/impersonate/releases/download/v4.0.0/impersonate-v4.0.0.tar.gz
