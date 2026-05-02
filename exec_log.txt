@@ -117,3 +117,51 @@ asset:	nextcloud-330000190.apk
 Minimum: NC 20 Server, Android 9 Nougat
 
 For a full list, please see https://github.com/nextcloud/android/milestone/124
+===================
+Sat May  2 13:13:35 UTC 2026
+===================
+
+WARNING: apt does not have a stable CLI interface. Use with caution in scripts.
+
+Reading package lists...
+Building dependency tree...
+Reading state information...
+The following additional packages will be installed:
+  libhttrack2
+Suggested packages:
+  webhttrack httrack-doc
+The following NEW packages will be installed:
+  httrack libhttrack2
+0 upgraded, 2 newly installed, 0 to remove and 7 not upgraded.
+Need to get 263 kB of archives.
+After this operation, 746 kB of additional disk space will be used.
+Get:1 file:/etc/apt/apt-mirrors.txt Mirrorlist [144 B]
+Get:2 http://azure.archive.ubuntu.com/ubuntu noble/universe amd64 libhttrack2 amd64 3.49.5-1build2 [245 kB]
+Get:3 http://azure.archive.ubuntu.com/ubuntu noble/universe amd64 httrack amd64 3.49.5-1build2 [18.1 kB]
+Fetched 263 kB in 1s (505 kB/s)
+Selecting previously unselected package libhttrack2:amd64.
+(Reading database ... (Reading database ... 5%(Reading database ... 10%(Reading database ... 15%(Reading database ... 20%(Reading database ... 25%(Reading database ... 30%(Reading database ... 35%(Reading database ... 40%(Reading database ... 45%(Reading database ... 50%(Reading database ... 55%(Reading database ... 60%(Reading database ... 65%(Reading database ... 70%(Reading database ... 75%(Reading database ... 80%(Reading database ... 85%(Reading database ... 90%(Reading database ... 95%(Reading database ... 100%(Reading database ... 220764 files and directories currently installed.)
+Preparing to unpack .../libhttrack2_3.49.5-1build2_amd64.deb ...
+Unpacking libhttrack2:amd64 (3.49.5-1build2) ...
+Selecting previously unselected package httrack.
+Preparing to unpack .../httrack_3.49.5-1build2_amd64.deb ...
+Unpacking httrack (3.49.5-1build2) ...
+Setting up libhttrack2:amd64 (3.49.5-1build2) ...
+Setting up httrack (3.49.5-1build2) ...
+Processing triggers for man-db (2.12.0-4build2) ...
+Not building database; man-db/auto-update is not 'true'.
+Processing triggers for libc-bin (2.39-0ubuntu8.7) ...
+
+Running kernel seems to be up-to-date.
+
+No services need to be restarted.
+
+No containers need to be restarted.
+
+No user sessions are running outdated binaries.
+
+No VM guests are running outdated hypervisor (qemu) binaries on this host.
+Mirror launched on Sat, 02 May 2026 13:13:41 by HTTrack Website Copier/3.49-5 [XR&CO'2014]
+mirroring https://docs.gitea.com/ -* with the wizard help..
+Done.
+Thanks for using HTTrack!

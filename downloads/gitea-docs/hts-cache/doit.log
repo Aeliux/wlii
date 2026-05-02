@@ -1,0 +1,8 @@
+https://docs.gitea.com/ -O downloads/gitea-docs -*
+File generated automatically on Sat, 02 May 2026 13:13:41, do NOT edit
+
+To update a mirror, just launch httrack without any parameters
+The existing cache will be used (and modified)
+To have other options, retype all parameters and launch HTTrack
+To continue an interrupted mirror, just launch httrack without any parameters
+
